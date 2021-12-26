@@ -10,12 +10,25 @@ type room struct{
 type targetRoom struct{//用于按顺序遍历某层楼的所有目标房间
 	v []room
 	start int//当前访问的位置
+	is bool//当前start指向的房间是否有楼梯
 }
+
 func (tr *targetRoom) next(){//到下一个有楼梯的房间
+	if tr.v[tr.start].empty==1{//处理一开始就是有楼梯的情况
+		if tr.is==true{
+			tr.is=false
+			tr.start++
+		}else{
+			tr.is=true
+			return
+		}
+	}
+
 run:
 	for i:=tr.start;i<len(tr.v);i++ {
 		if tr.v[i].empty==1{
-			tr.start=i+1
+			tr.is=true
+			tr.start=i
 			return
 		}
 	}
@@ -43,21 +56,23 @@ func main(){
 
 
 	var troom targetRoom
-	troom.start=t[0][entry].board
 	var passwd int
 
+	troom.start=entry
 
-	//.v=t[0]
-	passwd+=t[0][entry].board
-	for i:=1;i<n;i++{
-		troom.v=t[i]
+	for i:=0;i<n;i++{
+
 		passwd+=t[i][entry].board
-		fmt.Printf("vv:%d %d %d\n",i,entry,t[i][entry].board)
+		troom.v=t[i]
+
+		//fmt.Printf("\nv:%d %d %d\n",i,entry,t[i][entry].board)
 		for j:=0;j<t[i][entry].board;j++{
 			troom.next()
+			//fmt.Printf("搜索结果 %d ",troom.start)
 		}
+
 		entry=troom.start
 	}
 
-	fmt.Printf("result:%d",passwd)
+	fmt.Printf("%d",passwd)
 }
